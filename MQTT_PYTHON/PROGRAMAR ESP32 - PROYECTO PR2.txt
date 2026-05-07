@@ -1,0 +1,216 @@
+//PROGRAMAR ESP32 -> PROYECTO PR2
+---------------------------------------------------------------------------
+
+//esp.ino
+
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+// --- Configuración de Red ---
+const char* ssid = "UPV-PSK";
+const char* password = "giirob-pr2-2023";
+
+// ---- Configuración MQTT ----
+const char *mqtt_server = "broker.emqx.io";
+const char *topic = "mqtt/pr2/datacenter/g2";
+
+const int pinSensor = 34;
+const int ledTemp = 2;
+const int btnRellenar = 4;
+const int btnVaciar = 5;
+const int btnEmergencia = 13;
+const int ledFullNuevas = 18;
+const int ledFullMalas = 19;
+
+bool ultimoEstadoBtnRellenar = HIGH;
+bool ultimoEstadoBtnVaciar = HIGH;
+bool ultimoEstadoEmergencia = HIGH;
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+
+void callback(char* topic, byte* payload, unsigned int length) {
+	String mensaje;
+	for (int i = 0; i < length; i++) { mensaje += (char)payload[i]; }
+	
+	if (mensaje == "AVISO_MALAS_LLENA") {
+		digitalWrite(ledFullMalas, HIGH);
+	}else if (mensaje == "AVISO_NUEVAS_LLENA") {
+		digitalWrite(ledFullNuevas, HIGH);
+	}
+}
+
+void reconnect() {
+	
+	while(!client.connected()) {
+		Serial.print("Intentando conexión MQTT...");
+
+		String clientId = "ESP32_G2_Datacenter";
+
+		if(client.connect(clientId.c_str())) {
+			Serial.println("¡Conectado al broker!");
+			client.subscribe(topic);
+		} else {
+			Serial.print("Error, rc=");
+			Serial.print(client.state());
+			Serial.println("Reintentando en 5 segundos...");
+			delay(5000);
+		}
+	}
+}
+
+
+void setup() {
+	Serial.begin(115200);
+	
+	pinMode(ledTemp, OUTPUT);
+	pinMode(btnRellenar, INPUT_PULLUP);
+	pinMode(btnVaciar, INPUT_PULLUP);
+	pinMode(ledFullNuevas, OUTPUT);
+	pinMode(ledFullMalas, OUTPUT);
+	pinMode(btnEmergencia, INPUT_PULLUP);
+
+	WiFi.begin(ssid, password);
+	while (WiFi.status() != WL_CONNECTED) {
+		delay(500);
+		Serial.print(".");
+	}
+	Serial.println("\nWiFi conectado.");
+
+	//mqtt server
+	client.setServer(mqtt_server, 1883);
+
+	//función callback
+	client.setCallback(callback);
+}
+
+void loop() {
+	
+	if(!client.connected()) {
+		reconnect();
+	}
+	client.loop();
+
+	//FUNCIÓN DE TEMPERATURA
+	int lectura = analogRead(pinSensor);
+
+	if(lectura > 2500) {
+		digitalWrite(ledTemp, HIGH);
+	
+
+		client.publish(topic, "TARJETA_DEFECTUOSA");
+	
+		Serial.println("¡Alerta de calor enviada al robot!");
+		delay(2000);
+	} else{
+		digitalWrite(ledTemp, LOW);
+	}
+
+	//FUNCIÓN DE LOGÍSTICA
+	bool estadoBtnRellenar = digitalRead(btnRellenar);
+	bool estadoBtnVaciar = digitalRead(btnVaciar);
+
+	if (estadoBtnRellenar == LOW && ultimoEstadoBtnRellenar == HIGH) {
+		client.publish(topic, "BANDEJA_NUEVAS_REPOSTADA");
+		Serial.println("Bandeja repuesta, tarjetas nuevas listas.");
+
+		digitalWrite(ledFullNuevas, LOW);
+		delay(200);
+	}
+
+	ultimoEstadoBtnRellenar = estadoBtnRellenar;
+
+	if(estadoBtnVaciar == LOW && ultimoEstadoBtnVaciar == HIGH) {
+		client.publish(topic, "BANDEJA_DEFECTUOSAS_VACIADA");
+		Serial.println("Bandeja defectuosas vacía.");
+		
+		digitalWrite(ledFullMalas, LOW);
+		delay(200);
+	}
+
+	ultimoEstadoBtnVaciar = estadoBtnVaciar;
+
+	//FUNCIÓN EMERGENCIA
+	bool estadoEmergencia = digitalRead(btnEmergencia);
+	if (estadoEmergencia == LOW && ultimoEstadoEmergencia == HIGH) {
+		client.publish(topic, "EMERGENCIA_STOP");
+		Serial.println("!!! PARADA DE EMERGENCIA ENVIADA !!!");
+		
+		digitalWrite(ledTemp, HIGH);
+		delay(500);
+	}
+	ultimoEstadoEmergencia = estadoEmergencia;
+
+	delay(100);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
