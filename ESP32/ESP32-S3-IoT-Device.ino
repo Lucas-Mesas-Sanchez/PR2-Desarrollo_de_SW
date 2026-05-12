@@ -14,13 +14,14 @@
  * Version: 0.3   (2024/02/14) Añadido funciones de log
  * Version: 0.2   (2023/12/28) Dividido en sub-ficheros
  * Version: 0.1   (2023/11/29) Prototipo Inicial Funcional
- */
+*/
 #include "Config.h"
 
 #include <WiFi.h>
 #ifdef SSL_ROOT_CA
   #include <WiFiClientSecure.h>
 #endif
+#include <Arduino.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
@@ -72,4 +73,5 @@ void loop() {
   // TODO: completar esta función (w_loop.ino)
   on_loop();
 }
+
 

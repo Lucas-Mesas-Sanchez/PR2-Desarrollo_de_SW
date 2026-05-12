@@ -1,17 +1,11 @@
+buffer_circular g_mqtt_buffer_in;
+buffer_circular g_mqtt_buffer_out;
 void on_setup() {
 
-    pinMode(pinSensor, INPUT);
-    pinMode(ledTemp, OUTPUT);
-    pinMode(ledEmptyNuevas, OUTPUT);
-    pinMode(ledFullMalas, OUTPUT);
-
-    pinMode(btnRellenar, INPUT_PULLUP);
-    pinMode(btnVaciar, INPUT_PULLUP);
-    pinMode(btnEmergencia, INPUT_PULLUP);
-
-    digitalWrite(ledTemp, LOW);
-    digitalWrite(ledEmptyNuevas, LOW);
-    digitalWrite(ledFullMalas, LOW);
+gpio_init();
+xTaskCreate(MQTTcrtl,"Control de MQTT",10000,&mqtt_buffer_out,1,NULL);
+xTaskCreate(TEMPcrtl,"Control de Temperatura",10000,&mqtt_buffer_out,1,NULL);
+xTaskCreate(BANDEJAcrlt,"Control de leds de Bandeja",10000,&mqtt_buffer_in,1,NULL);
+xTaskCreate(EMERGENCIAcrlt,"Control de la seta de emerngia",10000,&mqtt_buffer_out,5,NULL);
 
 }
-

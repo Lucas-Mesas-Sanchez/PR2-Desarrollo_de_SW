@@ -24,11 +24,12 @@
 
 
 // IO
-#define pinSensor                 34
-#define ledTemp                   2
-#define btnRellenar               4
-#define btnVaciar                 5
-#define btnEmergencia             13
-#define ledEmptyNuevas             18
-#define ledFullMalas              19
+#define pinSensor                 34 // Sensor de temperatura real
+#define ledTemp                   2  // Led que indica si la temperatura es muy elevada o no
+#define btnRellenar               4  // Boton que rellena la bandeja de la simulación
+#define btnVaciar                 5  // Boton que vacia la bandeja de la simulación 
+#define btnEmergencia             13 // Boton de emergencia que para la simulación
+#define ledEmptyNuevas            18 // Led que indica si la bandeja de la simulación está vacía
+#define ledFullMalas              19 // Led que indica si la bandeja de la simulación está vacía
+
 
