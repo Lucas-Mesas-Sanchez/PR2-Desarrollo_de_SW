@@ -88,3 +88,22 @@ CREATE TABLE Reemplazo (
     FOREIGN KEY (robot) REFERENCES Robot(cod_rob),
     CHECK (fecha_fin > fecha_inicio)
 );
+
+-- REPASANDO EL ESQUEMA NOS DIMOS CUENTA DE VARIOS ERRORES Y 
+--TUVIMOS QUE AÑADIR ESTAS LINEAS Y MODIFICAMOS ALGUNOS PARAMETROS
+
+--ALTER TABLE Operario
+--DROP COLUMN pasillo;
+
+--ALTER TABLE Operario
+--DROP CONSTRAINT operario_pasillo_fkey;
+
+--ALTER TABLE Tarjeta
+--ALTER COLUMN tipo SET NOT NULL;
+
+--ALTER TABLE Pasillo
+--ADD COLUMN operario VARCHAR(50);
+
+--ALTER TABLE Pasillo
+--ADD CONSTRAINT pasillo_operario_fkey
+--FOREIGN KEY (operario) REFERENCES Operario(codigo);
